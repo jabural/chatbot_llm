@@ -19,6 +19,12 @@ spec:
         image: jabural/chatbot:latest
         ports:
         - containerPort: 8000
+    env:
+      - name: HUGGINGFACE_HUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: huggingface-secret
+            key: HUGGINGFACE_HUB_TOKEN
 ---
 apiVersion: v1
 kind: Service

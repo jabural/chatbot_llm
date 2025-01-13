@@ -90,6 +90,13 @@ async def home():
     """
     return {"message": "Hello world"}
 
+@app.get("/healthy", status_code=status.HTTP_200_OK)
+async def home():
+    """
+    A simple route to test if the API is running.
+    """
+    return {"status": "healthy"}
+
 
 @app.post("/chatbot", status_code=status.HTTP_200_OK)
 async def handle_prompt(data: Prompt):
