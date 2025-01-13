@@ -7,3 +7,5 @@ services:
       - "8000:8000"
     volumes:
       - ./main.py:/LLM_application_chatbot/main.py
+    environment:
+      - HUGGINGFACE_HUB_TOKEN=${HUGGINGFACE_HUB_TOKEN}
