@@ -2,6 +2,9 @@
 
 This project provides a FastAPI-based API for interacting with a chatbot built using the LangGraph library and OpenAI's GPT model. It includes functionality for processing conversational states and integrating internet search results into chatbot interactions via the Tavily search tool.
 
+![screenshot](images/graph.png)
+
+
 ## Features
 - FastAPI-based chatbot service.
 - Conversational state management using LangGraph's `StateGraph`.
