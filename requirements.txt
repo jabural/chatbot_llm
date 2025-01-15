@@ -16,3 +16,4 @@ tavily-python
 langgraph-checkpoint-sqlite
 langchain-huggingface
 pytest
+langchain-openai

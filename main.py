@@ -1,78 +1,50 @@
 """
 This code provides an API for interacting with a chatbot built using a transformer model.
-It uses HuggingFace's transformers pipeline and LangChain for processing and managing
+It uses OpenAI and LangGraph for processing and managing
 conversational states.
 """
-import os
+from langchain_community.tools.tavily_search import TavilySearchResults
 from pydantic import BaseModel, Field
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from starlette import status
-from transformers import pipeline, AutoTokenizer, AutoModelForCausalLM
-from langchain_huggingface import HuggingFacePipeline
-from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langgraph.prebuilt import ToolNode, tools_condition
+from langchain_openai import ChatOpenAI
 
-# Get Hugging Face token from environment variables
-hf_token = os.getenv("HUGGINGFACE_HUB_TOKEN")
+memory = MemorySaver() #Define memory
 
-# Define the model constant in uppercase (as per PEP 8)
-MODEL_NAME = "meta-llama/Llama-3.2-1B-Instruct"
+#Initialize the graph
+graph_builder = StateGraph(MessagesState)
 
-# Load the tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, token=hf_token)
-model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, token=hf_token)
+#Generate tool for being able to search the internet
+tool = TavilySearchResults(max_results=2)
+tools = [tool]
+llm = ChatOpenAI(model="gpt-4o-mini")   #Load llm model
+llm_with_tools = llm.bind_tools(tools)  #Bind tools to model
 
-# Create a pipeline for text generation
-generation_pipeline = pipeline(
-    "text-generation", model=model, tokenizer=tokenizer, max_new_tokens=20
+def chatbot(state: MessagesState):
+    """
+    Define chatbot node that calls the llm model.
+    """
+    return {"messages": [llm_with_tools.invoke(state["messages"])]}
+
+#Add nodes to graph
+graph_builder.add_node("chatbot", chatbot)
+tool_node = ToolNode(tools=[tool])
+graph_builder.add_node("tools", tool_node)
+
+graph_builder.add_conditional_edges(
+    "chatbot",
+    tools_condition,
 )
 
-# Wrap the pipeline in LangChain's HuggingFacePipeline
-llm = HuggingFacePipeline(pipeline=generation_pipeline)
+# Any time a tool is called, we return to the chatbot to decide the next step
+graph_builder.add_edge("tools", "chatbot")
+graph_builder.add_edge(START, "chatbot")
 
-# Define the system message for the chatbot
-prompt_template = ChatPromptTemplate(
-    [
-        (
-            "system",
-            """asyncThe following is a friendly conversation between a human and an AI.
-            The AI is talkative and provides lots of specific details from its context.
-            If the AI does not know the answer to a question, it truthfully says it does not know.
-            The human question or input shouldn't be generated, only the first AI response."""
-        ),
-        MessagesPlaceholder(variable_name="messages"),
-    ]
-)
+app_graph = graph_builder.compile(checkpointer=memory)
 
-# Initialize the workflow with a state graph
-workflow = StateGraph(state_schema=MessagesState)
-
-
-def call_model(state: MessagesState):
-    """
-    Calls the language model using the given state and returns a generated response.
-
-    Args:
-        state (MessagesState): The state that contains the conversation history.
-
-    Returns:
-        dict: The response from the language model.
-    """
-    print(f"State is: {state}")
-    prompt = prompt_template.invoke(state)
-    response = AIMessage(llm.invoke(prompt))
-    return {"messages": response}
-
-
-workflow.add_edge(START, "model")
-workflow.add_node("model", call_model)
-
-memory = MemorySaver()
-app_graph = workflow.compile(checkpointer=memory)
-
-# Initialize FastAPI app
 app = FastAPI()
 
 class Prompt(BaseModel):
@@ -91,7 +63,7 @@ async def home():
     return {"message": "Hello world"}
 
 @app.get("/healthy", status_code=status.HTTP_200_OK)
-async def home():
+async def healthy():
     """
     A simple route to test if the API is running.
     """
@@ -109,13 +81,25 @@ async def handle_prompt(data: Prompt):
     Returns:
         response (str): The AI's generated response.
     """
-    input_text = data.prompt + "\n"
+    user_input = data.prompt
     thread = data.thread
 
     config = {"configurable": {"thread_id": f"{thread}"}}
 
-    input_messages = [HumanMessage(input_text)]
-    output = app_graph.invoke({"messages": input_messages}, config)
-    response = output["messages"][-1].content.split("AI: ")[-1]
+    events = app_graph.stream(
+        {"messages": [("user", user_input)]}, config, stream_mode="values"
+        )
+    response = None
+    event = None
+    for event in events:
+        pass
+
+    if event is None or not event.get("messages") or not event["messages"][-1].get("content"):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to generate a response. Please try again later."
+        )
+    
+    response = event["messages"][-1].content
 
     return {"response": response}
