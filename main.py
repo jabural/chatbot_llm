@@ -86,18 +86,42 @@ async def handle_prompt(data: Prompt):
 
     config = {"configurable": {"thread_id": f"{thread}"}}
 
-    events = app_graph.stream(
-        {"messages": [("user", user_input)]}, config, stream_mode="values"
+    try:
+        # Attempt to stream events from the app graph
+        events = app_graph.stream(
+            {"messages": [("user", user_input)]}, config, stream_mode="values"
         )
-    response = None
-    event = None
-    for event in events:
-        pass
-
-    if event is None or not event.get("messages") or not event["messages"][-1].get("content"):
+    except Exception as e:
+        # Handle errors during event streaming
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to generate a response. Please try again later."
+            detail=f"Error occurred while processing the request: {str(e)}"
+        )
+    
+    event = None
+    try:
+        # Extract the last event from the streamed events
+        for event in events:
+            pass
+
+        # Check if the event is valid and contains the response content
+        if event is None or not event.get("messages") or not event["messages"][-1].content:
+            raise ValueError("Invalid event or missing content in the response.")
+        
+        # Extract the response content
+        response = event["messages"][-1].content
+
+    except ValueError as ve:
+        # Handle specific value-related errors
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Value error: {str(ve)}"
+        )
+    except Exception as e:
+        # Handle unexpected errors
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Unexpected error occurred: {str(e)}"
         )
     
     response = event["messages"][-1].content
