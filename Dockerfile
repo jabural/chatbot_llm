@@ -13,7 +13,7 @@ RUN pip install -r requirements.txt
 # Copy every content from the local file to the image
 COPY main.py .
 
-# This informs Docker that the container will listen on port 5000 at runtime.
+# This informs Docker that the container will listen on port 8000 at runtime.
 EXPOSE 8000
 
 # configure the container to run in an executed manner

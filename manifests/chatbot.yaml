@@ -20,11 +20,16 @@ spec:
         ports:
         - containerPort: 8000
     env:
-      - name: HUGGINGFACE_HUB_TOKEN
+      - name: OPENAI_API_KEY
         valueFrom:
           secretKeyRef:
-            name: huggingface-secret
-            key: HUGGINGFACE_HUB_TOKEN
+            name: openai-secret
+            key: OPENAI_API_KEY
+      - name: TAVILY_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: tavily-secret
+            key: TAVILY_API_KEY
 ---
 apiVersion: v1
 kind: Service
