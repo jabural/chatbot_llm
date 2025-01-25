@@ -8,8 +8,10 @@ wget
 matplotlib
 scikit-learn
 langchain-community
-langgraph 
-tavily-python 
+langgraph
+tavily-python
 langgraph-checkpoint-sqlite
 pytest
 langchain-openai
+websockets
+pylint

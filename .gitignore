@@ -1,3 +1,5 @@
 src/.venv
 src/.env
 src/manifests/secret.yaml
+src/trials
+src/ouput.wav
