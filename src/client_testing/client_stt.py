@@ -1,3 +1,4 @@
+import os
 import asyncio
 import numpy as np
 import sounddevice as sd
@@ -110,6 +111,8 @@ async def connect_to_server(audio_data, samplerate, channels):
             # Wait for the sound to finish playing
             sd.wait()
 
+            os.remove("audio_obtained.wav")
+
         except Exception as e:
             print(f"Error: {e}")
 
@@ -117,7 +120,7 @@ async def connect_to_server(audio_data, samplerate, channels):
 if __name__ == "__main__":
     # Audio recording parameters
     DURATION = 3  # in seconds
-    SAMPLERATE = 44100
+    SAMPLERATE = 16000
     CHANNELS = 1
 
     # Record and send audio
