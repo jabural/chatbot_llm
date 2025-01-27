@@ -1,0 +1,29 @@
+name: CI workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: python:3.12-slim
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          cd src/
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests with pytest
+        env:
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY}}
+            TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY}}
+        run: |
+          cd src/
+          pytest -s

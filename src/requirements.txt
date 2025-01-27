@@ -15,3 +15,5 @@ pytest
 langchain-openai
 websockets
 pylint
+lark
+setuptools
