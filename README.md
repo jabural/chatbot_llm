@@ -113,3 +113,46 @@ The thread is optional, and one would be assigned if it is not chosen.
 
 ```
 
+### 4. Websocket Endpoint
+The API also provides a Websocket endpoint for real-time interaction, such as audio processing and live chatbot responses.
+
+**Enpoint:** ```ws```
+This WebSocket endpoint allows clients to send audio data for transcription and receive chatbot-generated responses in real time.
+
+**Workflow:**
+1. The client connects to the WebSocket endpoint.
+
+2. The client sends a JSON payload containing the audio data and metadata.
+
+3. The server processes the audio, transcribes it, and generates a chatbot response.
+
+4. The server sends the response back to the client in real time.
+
+**Example JSON Payload:**
+```json
+{
+  "user_id": "abc123",
+  "audio_data": "<base64-encoded-audio>",
+  "samplerate": 16000,
+  "channels": 1
+}
+```
+
+**Server Response:**
+
+Upon a succesful processing:
+```json
+{
+  "status": "success",
+  "text_generated": "Hello! How can I assist you today?"
+}
+```
+
+In case of errors:
+```
+{
+  "status": "error",
+  "message": "<Error description>"
+}
+```
+
