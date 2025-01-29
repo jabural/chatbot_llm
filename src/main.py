@@ -14,17 +14,75 @@ from pydantic import BaseModel, Field
 # langchain & langgraph imports
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_openai import ChatOpenAI
-from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
+
+#sqlalchemy
+from sqlalchemy import (
+    create_engine, Column, Integer, String, DateTime, ForeignKey, Text
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, sessionmaker, Session
+from datetime import datetime
+
 
 # Your OpenAI client
 from openai import OpenAI
 
+
 client = OpenAI()
 
-# Create a memory saver
-memory = MemorySaver()
+Base = declarative_base()
+
+DATABASE_URL = "sqlite:///./conversations.db"
+
+# 1. Create the engine
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},  # Only needed for SQLite
+    echo=True  # Optional; logs SQL to console, good for debugging
+)
+
+# 2. Create a Base class for your models
+Base = declarative_base()
+
+Base.metadata.create_all(engine)
+# 3. Create a configured "SessionLocal" class
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+class Thread(Base):
+    __tablename__ = "threads"
+
+    id = Column(String, primary_key=True, index=True)
+    title = Column(String, nullable=True)  # Optionally store a human-readable title
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # One-to-many: A thread can contain multiple messages
+    messages = relationship("Message", back_populates="thread", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Thread(id={self.id}, title={self.title})>"
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    thread_id = Column(Integer, ForeignKey("threads.id"), nullable=False)
+    role = Column(String, nullable=False)   # e.g., "user", "assistant", "system"
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationship back to Thread
+    thread = relationship("Thread", back_populates="messages")
+
+    def __repr__(self):
+        return f"<Message(thread_id={self.thread_id}, role={self.role})>"
+
+
 
 def decode_base64_to_array(base64_string: str, dtype: np.dtype = np.int16) -> np.ndarray:
     """
@@ -70,6 +128,41 @@ def get_transcription_audio_file(filename: str = "output.wav") -> str:
         )
     return transcription.text
 
+def add_message_sql(thread_id: str, content: str, role: str):
+    session: Session = SessionLocal()
+    thread = session.query(Thread).filter_by(id=thread_id).first()
+    if not thread:
+        thread = Thread(id=thread_id, title="Conversation Title")
+        session.add(thread)
+        session.commit()
+
+    user_message = Message(
+        thread_id=thread.id,
+        role=role,
+        content=content
+    )
+    session.add(user_message)
+    session.commit()
+
+    session.close()
+
+def get_thread_by_id(thread_id):
+    """
+    Retrieves a thread and all its messages from the database.
+    """
+    session = SessionLocal()
+    try:
+        # Actually query the database for the thread
+        thread = session.query(Thread).filter_by(id=thread_id).first()
+        if thread:
+            print(f"Thread ID: {thread.id}, Title: {thread.title}")
+            for message in thread.messages:
+                print(f"[{message.role}] {message.content} (created at {message.created_at})")
+        else:
+            print("No thread found with ID:", thread_id)
+    finally:
+        session.close()
+
 # Initialize the state graph and chatbot
 graph_builder = StateGraph(MessagesState)
 
@@ -99,9 +192,9 @@ graph_builder.add_conditional_edges("chatbot", tools_condition)
 graph_builder.add_edge("tools", "chatbot")
 graph_builder.add_edge(START, "chatbot")
 
-app_graph = graph_builder.compile(checkpointer=memory)
+app_graph = graph_builder.compile()
 
-def get_response_llm(user_input: str, config: Dict[str, Any]) -> str:
+def get_response_llm(messages: str, config: Dict[str, Any]) -> str:
     """
     Gets the response from the LLM via the compiled graph.
 
@@ -113,7 +206,7 @@ def get_response_llm(user_input: str, config: Dict[str, Any]) -> str:
         str: The final response from the LLM.
     """
     events = app_graph.stream(
-        {"messages": [("user", user_input)]}, config, stream_mode="values"
+        {"messages": messages}, config, stream_mode="values"
     )
 
     response = ""
@@ -166,10 +259,21 @@ async def handle_prompt(data: Prompt) -> Dict[str, str]:
     """
     user_input: str = data.prompt
     thread: str = data.thread
+    add_message_sql(thread, user_input, "user")
 
     config = {"configurable": {"thread_id": thread}}
+
     try:
-        response = get_response_llm(user_input, config)
+        session = SessionLocal()
+        messages = []
+        db_thread = session.query(Thread).filter_by(id=thread).first()
+        if db_thread:
+            # Thread exists => load its prior messages in ascending creation time
+            # (you may want to sort by Message.created_at for chronological order)
+            for msg in db_thread.messages:
+                messages.append((msg.role, msg.content))
+        response = get_response_llm(messages, config)
+        add_message_sql(thread, response, "assistant")
     except ValueError as ve:
         # Handle specific value-related errors
         raise HTTPException(
@@ -256,4 +360,5 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
 
 if __name__ == "__main__":
     import uvicorn
+    get_thread_by_id("abc123")
     uvicorn.run(app, host="127.0.0.1", port=8000)
