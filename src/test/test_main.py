@@ -19,7 +19,7 @@ def test_return_health_check():
     print("I'm here")
     assert response.json() == {'status': 'healthy'}
 
-@patch("src.main.get_response_llm")
+@patch("src.core.llm.get_response_llm")
 def test_conversation(mock_llm):
     mock_llm.return_value = "Hi, how are you doing?"
     """
@@ -36,8 +36,8 @@ def test_conversation(mock_llm):
     chatbot_response = response_data.get("response")
     assert isinstance(chatbot_response, str)
 
-@patch("src.main.get_transcription_audio_file")
-@patch("src.main.get_response_llm")
+@patch("src.core.llm.get_transcription_audio_file")
+@patch("src.core.llm.get_response_llm")
 def test_websocket_interaction(mock_llm, mock_stt):
     mock_stt.return_value = "Hello, my name is Jim."
     mock_llm.return_value = "Hi, how are you doing?"

@@ -4,3 +4,8 @@ src/manifests/secret.yaml
 src/trials
 src/ouput.wav
 src/__pycache__
+src/core/__pycache__
+src/routers/__pycache__
+src/test/__pycache__
+conversations.db
+.pytest_cache/
