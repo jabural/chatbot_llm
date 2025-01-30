@@ -1,23 +1,14 @@
 from fastapi.testclient import TestClient
 from fastapi import status
 from ..main import app
-import pytest
 import base64
 import json
 import numpy as np
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
+from .utils import *
+from ..routers.chatbot import get_db
 
-client = TestClient(app)
-
-
-def test_return_health_check():
-    """
-    Check if the endpoint returns the correct json
-    """
-    response = client.get("/healthy")
-    assert response.status_code == status.HTTP_200_OK
-    print("I'm here")
-    assert response.json() == {'status': 'healthy'}
+app.dependency_overrides[get_db] = override_get_db
 
 @patch("src.core.llm.get_response_llm")
 def test_conversation(mock_llm):

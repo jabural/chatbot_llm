@@ -3,8 +3,6 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from typing import Dict, Any
-
-from ..database import SessionLocal
 from ..models import Thread, Message
 from sqlalchemy.orm import Session
 
@@ -30,40 +28,37 @@ def get_transcription_audio_file(filename: str = "output.wav") -> str:
         )
     return transcription.text
 
-def add_message_sql(thread_id: str, content: str, role: str):
-    session: Session = SessionLocal()
-    thread = session.query(Thread).filter_by(id=thread_id).first()
+
+
+def add_message_sql(db: Session, thread_id: str, content: str, role: str):
+    thread = db.query(Thread).filter_by(id=thread_id).first()
     if not thread:
         thread = Thread(id=thread_id, title="Conversation Title")
-        session.add(thread)
-        session.commit()
+        db.add(thread)
+        db.commit()
 
     user_message = Message(
         thread_id=thread.id,
         role=role,
         content=content
     )
-    session.add(user_message)
-    session.commit()
+    db.add(user_message)
+    db.commit()
 
-    session.close()
 
-def get_thread_by_id(thread_id):
+def get_thread_by_id(db: Session, thread_id: str):
     """
     Retrieves a thread and all its messages from the database.
     """
-    session = SessionLocal()
-    try:
-        # Actually query the database for the thread
-        thread = session.query(Thread).filter_by(id=thread_id).first()
-        if thread:
-            print(f"Thread ID: {thread.id}, Title: {thread.title}")
-            for message in thread.messages:
-                print(f"[{message.role}] {message.content} (created at {message.created_at})")
-        else:
-            print("No thread found with ID:", thread_id)
-    finally:
-        session.close()
+    # Actually query the database for the thread
+    thread = db.query(Thread).filter_by(id=thread_id).first()
+    if thread:
+        print(f"Thread ID: {thread.id}, Title: {thread.title}")
+        for message in thread.messages:
+            print(f"[{message.role}] {message.content} (created at {message.created_at})")
+    else:
+        print("No thread found with ID:", thread_id)
+
 
 # Initialize the state graph and chatbot
 graph_builder = StateGraph(MessagesState)
