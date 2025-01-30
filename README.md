@@ -87,8 +87,47 @@ A simple route to test if the API is running.
   "message": "Hello world"
 }
 ```
+### 3. History Route
 
-### 3. Chatbot interaction
+**GET /history**  
+Retrieves all messages from a specific thread based on the thread_id query parameter.
+
+**Request:**
+
+```
+GET /history/?thread_id=abc123
+```
+
+**Response:**
+If the thread exists:
+
+```json
+{
+  "thread_id": "thread_id",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello, how are you?",
+      "created_at": "2024-06-01T12:00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm doing well, thank you!",
+      "created_at": "2024-06-01T12:00:05"
+    }
+  ]
+}
+```
+
+If the thread does not exist:
+
+```json
+{
+  "detail": "No thread found with ID: <therad_id>"
+}
+```
+
+### 4. Chatbot interaction
 
 **POST /chatbot**  
 Send a prompt to the chatbot along with a user thread to get a response. The prompt is sent to the AI model, which processes the input and returns a response.
@@ -113,7 +152,8 @@ The thread is optional, and one would be assigned if it is not chosen.
 
 ```
 
-### 4. Websocket Endpoint
+
+### 5. Websocket Endpoint
 The API also provides a Websocket endpoint for real-time interaction, such as audio processing and live chatbot responses.
 
 **Enpoint:** ```ws```
