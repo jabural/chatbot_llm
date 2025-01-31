@@ -9,12 +9,12 @@ from ..core.audio_utils import (
     save_audio_to_wav,
 )
 from ..core.llm import get_response_llm, get_transcription_audio_file
-from ..database import SessionLocal
-from ..models import Thread, Message
+
 
 router = APIRouter(
         tags=['ws']
 )
+
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket) -> None:

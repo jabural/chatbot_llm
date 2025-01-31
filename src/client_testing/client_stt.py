@@ -8,6 +8,7 @@ import base64
 from gtts import gTTS
 import soundfile as sf
 
+
 async def record_audio(duration, samplerate=44100, channels=1):
     """
     Records audio for the specified duration and returns it as a NumPy array.
@@ -39,6 +40,7 @@ async def record_audio(duration, samplerate=44100, channels=1):
 
     print("Recording complete.")
     return buffer
+
 
 async def play_buffer(buffer, **kwargs):
     loop = asyncio.get_event_loop()

@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException, status, Depends,Query
-from pydantic import BaseModel, Field
-from typing import Dict, List
+from fastapi import APIRouter, HTTPException, status, Depends, Query
+from pydantic import BaseModel
+from typing import List
 from sqlalchemy.orm import Session
 from typing import Annotated
 from ..database import SessionLocal
@@ -12,6 +12,7 @@ router = APIRouter(
     tags=['history']
 )
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -19,16 +20,20 @@ def get_db():
     finally:
         db.close()
 
+
 db_dependency = Annotated[Session, Depends(get_db)]
+
 
 class MessageResponse(BaseModel):
     role: str
     content: str
     created_at: datetime
 
+
 class ThreadResponse(BaseModel):
     thread_id: str
     messages: List[MessageResponse]
+
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=ThreadResponse)
 async def get_thread_messages(

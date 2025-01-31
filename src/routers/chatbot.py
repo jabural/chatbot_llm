@@ -11,6 +11,7 @@ router = APIRouter(
     tags=['chatbot']
 )
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -18,11 +19,14 @@ def get_db():
     finally:
         db.close()
 
+
 db_dependency = Annotated[Session, Depends(get_db)]
+
 
 class Prompt(BaseModel):
     prompt: str = Field(..., title="Prompt", description="The prompt to send")
     thread: str = Field("abc123", title="Thread", description="The thread of the user")
+
 
 @router.post("/chatbot", status_code=status.HTTP_200_OK)
 async def handle_prompt(data: Prompt, db: db_dependency) -> Dict[str, str]:

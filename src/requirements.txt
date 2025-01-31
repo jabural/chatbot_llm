@@ -17,3 +17,4 @@ websockets
 pylint
 lark
 setuptools
+flake8

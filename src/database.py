@@ -21,5 +21,4 @@ SessionLocal = sessionmaker(
 # 3. Create a Base class for your models
 Base = declarative_base()
 
-Base.metadata.create_all(bind = engine)
-
+Base.metadata.create_all(bind=engine)

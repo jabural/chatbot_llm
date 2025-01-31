@@ -1,9 +1,5 @@
-from fastapi.testclient import TestClient
 from fastapi import status
-from ..main import app
-import numpy as np
-from unittest.mock import patch
-from .utils import *
+from .utils import client
 
 
 def test_return_health_check():

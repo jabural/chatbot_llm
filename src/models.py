@@ -1,7 +1,8 @@
 from .database import Base
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Text
-from sqlalchemy.orm import relationship, sessionmaker, Session
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
+from sqlalchemy.orm import relationship
 from datetime import datetime, UTC
+
 
 class Thread(Base):
     __tablename__ = "threads"
@@ -15,6 +16,7 @@ class Thread(Base):
 
     def __repr__(self):
         return f"<Thread(id={self.id}, title={self.title})>"
+
 
 class Message(Base):
     __tablename__ = "messages"

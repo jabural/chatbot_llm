@@ -11,3 +11,4 @@ conversations.db
 .pytest_cache/
 data/conversations.db
 test_conversations.db
+.venv

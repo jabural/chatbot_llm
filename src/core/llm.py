@@ -10,6 +10,7 @@ from openai import OpenAI
 
 client = OpenAI()
 
+
 def get_transcription_audio_file(filename: str = "output.wav") -> str:
     """
     Transcribes audio data from a WAV file using the OpenAI Whisper API.
@@ -27,7 +28,6 @@ def get_transcription_audio_file(filename: str = "output.wav") -> str:
             language="en"
         )
     return transcription.text
-
 
 
 def add_message_sql(db: Session, thread_id: str, content: str, role: str):
@@ -68,6 +68,7 @@ tools = [tool]
 llm = ChatOpenAI(model="gpt-4o-mini")   # Load LLM
 llm_with_tools = llm.bind_tools(tools)  # Bind tools to model
 
+
 def chatbot(state: MessagesState) -> Dict[str, Any]:
     """
     Define chatbot node that calls the LLM model.
@@ -80,6 +81,7 @@ def chatbot(state: MessagesState) -> Dict[str, Any]:
     """
     return {"messages": [llm_with_tools.invoke(state["messages"])]}
 
+
 graph_builder.add_node("chatbot", chatbot)
 
 tool_node = ToolNode(tools=[tool])
@@ -90,6 +92,7 @@ graph_builder.add_edge("tools", "chatbot")
 graph_builder.add_edge(START, "chatbot")
 
 app_graph = graph_builder.compile()
+
 
 def get_response_llm(messages: str, config: Dict[str, Any]) -> str:
     """

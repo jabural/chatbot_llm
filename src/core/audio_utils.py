@@ -2,6 +2,7 @@ import base64
 import numpy as np
 import scipy.io.wavfile as wav
 
+
 def decode_base64_to_array(base64_string: str, dtype: np.dtype = np.int16) -> np.ndarray:
     """
     Decodes a base64 string back into a NumPy array.
@@ -15,6 +16,7 @@ def decode_base64_to_array(base64_string: str, dtype: np.dtype = np.int16) -> np
     """
     decoded_bytes = base64.b64decode(base64_string)
     return np.frombuffer(decoded_bytes, dtype=dtype)
+
 
 def save_audio_to_wav(audio_array: np.ndarray, samplerate: int, filename: str = "output.wav") -> None:
     """

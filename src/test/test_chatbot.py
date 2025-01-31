@@ -1,14 +1,13 @@
-from fastapi.testclient import TestClient
-from fastapi import status
 from ..main import app
 import base64
 import json
 import numpy as np
 from unittest.mock import patch
-from .utils import *
+from .utils import override_get_db, client
 from ..routers.chatbot import get_db
 
 app.dependency_overrides[get_db] = override_get_db
+
 
 @patch("src.core.llm.get_response_llm")
 def test_conversation(mock_llm):
@@ -16,7 +15,7 @@ def test_conversation(mock_llm):
     """
     Check if the chatbot returns an answer to the prompt
     """
-    request_data={
+    request_data = {
         'prompt': 'Hello, my name is Jim.',
         'thread': 'abc123'
     }
@@ -26,6 +25,7 @@ def test_conversation(mock_llm):
     # Extract the value of the 'response' key
     chatbot_response = response_data.get("response")
     assert isinstance(chatbot_response, str)
+
 
 @patch("src.core.llm.get_transcription_audio_file")
 @patch("src.core.llm.get_response_llm")
