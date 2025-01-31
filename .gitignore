@@ -6,9 +6,11 @@ src/ouput.wav
 src/__pycache__
 src/core/__pycache__
 src/routers/__pycache__
-src/test/__pycache__
+src/tests/__pycache__
 conversations.db
 .pytest_cache/
 data/conversations.db
 test_conversations.db
 .venv
+.mypy_cache
+.coverage

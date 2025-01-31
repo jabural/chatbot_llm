@@ -1,9 +1,9 @@
 import base64
 import numpy as np
-import scipy.io.wavfile as wav
+import scipy.io.wavfile as wav  # type: ignore
 
 
-def decode_base64_to_array(base64_string: str, dtype: np.dtype = np.int16) -> np.ndarray:
+def decode_base64_to_array(base64_string: str, dtype: np.dtype[np.generic] = np.dtype(np.int16)) -> np.ndarray:
     """
     Decodes a base64 string back into a NumPy array.
 

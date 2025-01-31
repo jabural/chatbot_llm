@@ -5,6 +5,9 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from typing import Dict, Any
 from ..models import Thread, Message
 from sqlalchemy.orm import Session
+from langchain.schema.runnable import RunnableConfig
+from typing import cast
+
 
 from openai import OpenAI
 
@@ -94,7 +97,7 @@ graph_builder.add_edge(START, "chatbot")
 app_graph = graph_builder.compile()
 
 
-def get_response_llm(messages: str, config: Dict[str, Any]) -> str:
+def get_response_llm(messages: list[tuple[Any, Any]], config: Dict[str, Any]) -> str:
     """
     Gets the response from the LLM via the compiled graph.
 
@@ -105,8 +108,9 @@ def get_response_llm(messages: str, config: Dict[str, Any]) -> str:
     Returns:
         str: The final response from the LLM.
     """
+    runnable_config = cast(RunnableConfig, config)
     events = app_graph.stream(
-        {"messages": messages}, config, stream_mode="values"
+        {"messages": messages}, runnable_config, stream_mode="values"
     )
 
     response = ""

@@ -55,4 +55,4 @@ async def get_thread_messages(
         MessageResponse(role=msg.role, content=msg.content, created_at=msg.created_at)
         for msg in thread.messages
     ]
-    return ThreadResponse(thread_id=thread.id, messages=messages)
+    return ThreadResponse(thread_id=str(thread.id), messages=messages)

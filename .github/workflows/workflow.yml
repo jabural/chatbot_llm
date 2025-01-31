@@ -23,8 +23,11 @@ jobs:
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY}}
             TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY}}
         run: |
-          pytest -s
+          pytest --cov=src --cov-config=.coveragerc
       - name: Lint with flake8
         run: |
           flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 src --count --max-complexity=10 --max-line-length=127 --statistics
+      - name: Static type checker with mypy
+        run: |
+          mypy src/

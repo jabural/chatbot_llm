@@ -8,7 +8,7 @@ from ..models import Thread, Message
 
 
 DATABASE_URL = "sqlite:///./test_conversations.db"
-
+# DATABASE_URL = "sqlite:///:memory:"
 
 # 1. Create the engine
 engine = create_engine(

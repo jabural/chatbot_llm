@@ -24,7 +24,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 
 class Prompt(BaseModel):
-    prompt: str = Field(..., title="Prompt", description="The prompt to send")
+    prompt: str = Field(..., min_length=1, title="Prompt", description="The prompt to send")
     thread: str = Field("abc123", title="Thread", description="The thread of the user")
 
 
@@ -43,9 +43,8 @@ async def handle_prompt(data: Prompt, db: db_dependency) -> Dict[str, str]:
         if db_thread:
             for msg in db_thread.messages:
                 messages.append((msg.role, msg.content))
-
-        response = get_response_llm(messages, config)
-        add_message_sql(db, thread, response, "assistant")
+            response = get_response_llm(messages, config)
+            add_message_sql(db, thread, response, "assistant")
     except ValueError as ve:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -1,12 +1,12 @@
 import os
 import asyncio
 import numpy as np
-import sounddevice as sd
+import sounddevice as sd  # type: ignore
 import websockets
 import json
 import base64
-from gtts import gTTS
-import soundfile as sf
+from gtts import gTTS  # type: ignore
+import soundfile as sf  # type: ignore
 
 
 async def record_audio(duration, samplerate=44100, channels=1):
