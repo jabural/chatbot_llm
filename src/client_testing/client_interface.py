@@ -7,7 +7,7 @@ import numpy as np
 import websockets
 import json
 import base64
-import requests
+import requests # type: ignore
 
 
 def encode_array_to_base64(array: np.ndarray) -> str:
