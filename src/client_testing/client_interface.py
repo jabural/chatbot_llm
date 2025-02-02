@@ -9,6 +9,7 @@ import json
 import base64
 import requests
 
+
 def encode_array_to_base64(array: np.ndarray) -> str:
     """
     Encodes a NumPy array to a base64 string.
@@ -47,9 +48,9 @@ async def connect_to_server(audio_data=None, sample_rate=None, text_data=None, c
 
     elif text_data is not None:
         request_data = {
-        'prompt': text_data,
-        'thread': 'abc123'
-        }
+            'prompt': text_data,
+            'thread': 'abc123'
+            }
         response = requests.post("http://127.0.0.1:8000/chatbot", json=request_data, timeout=10)
         # Parse the response body as JSON
         response_data = response.json()
@@ -60,6 +61,7 @@ async def connect_to_server(audio_data=None, sample_rate=None, text_data=None, c
 
     else:
         return "No data provided"
+
 
 def process_input(audio_file, user_text, input_choice):
     """
@@ -105,6 +107,7 @@ def toggle_input(choice):
         return gr.update(visible=True), gr.update(visible=False)
     return gr.update(visible=False), gr.update(visible=True)
 
+
 with gr.Blocks() as demo:
     gr.Markdown("# Choose an Input Type")
 
@@ -134,6 +137,7 @@ with gr.Blocks() as demo:
         inputs=[audio_input, text_input, input_choice],
         outputs=[output_text, audio_input, text_input]
     )
+
 
 if __name__ == "__main__":
     demo.launch()
