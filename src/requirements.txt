@@ -20,3 +20,4 @@ setuptools
 flake8
 pytest-cov
 mypy
+gradio
