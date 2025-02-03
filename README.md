@@ -10,8 +10,9 @@ This project provides a FastAPI-based API for interacting with a chatbot built u
 - Conversational state management using LangGraph's `StateGraph`.
 - Integration of OpenAI's GPT-4 mini model via the `langchain-openai` package.
 - Ability to perform internet searches using the Tavily search tool.
-- Memory-saving capabilities with LangGraph's `MemorySaver` to manage conversation history.
+- Memory-saving capabilities with SQLite.
 - Conditional routing in the conversation flow based on tool usage.
+- Graphical interface created with gradio.
 
 ## Prerequisites
 
@@ -196,3 +197,8 @@ In case of errors:
 }
 ```
 
+## Graphical interface
+In order to test it, a python code located in ```src/client_testing/client_interface.py``` is left. This code generates a graphical interface that the user
+can apply to send audio and text to the model to see how well it responds.
+
+![screenshot](images/gradio.png)
