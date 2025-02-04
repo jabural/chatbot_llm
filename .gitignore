@@ -14,3 +14,4 @@ test_conversations.db
 .mypy_cache
 .coverage
 manifests/secret.yaml
+.env
