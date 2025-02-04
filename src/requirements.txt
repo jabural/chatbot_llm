@@ -21,3 +21,5 @@ flake8
 pytest-cov
 mypy
 gradio
+pyjwt
+sqlalchemy
