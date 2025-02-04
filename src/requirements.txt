@@ -25,3 +25,4 @@ pyjwt
 sqlalchemy
 python-jose
 passlib
+
