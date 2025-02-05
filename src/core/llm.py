@@ -7,14 +7,14 @@ from ..models import Thread, Message
 from sqlalchemy.orm import Session
 from langchain.schema.runnable import RunnableConfig
 from typing import cast
-
+import asyncio
 
 from openai import OpenAI
 
 client = OpenAI()
 
 
-def get_transcription_audio_file(filename: str = "output.wav") -> str:
+async def get_transcription_audio_file(filename: str = "output.wav") -> str:
     """
     Transcribes audio data from a WAV file using the OpenAI Whisper API.
 
@@ -25,11 +25,11 @@ def get_transcription_audio_file(filename: str = "output.wav") -> str:
         str: The transcribed text.
     """
     with open(filename, "rb") as audio_file:
-        transcription = client.audio.transcriptions.create(
+        transcription = await asyncio.to_thread(client.audio.transcriptions.create(
             model="whisper-1",
             file=audio_file,
             language="en"
-        )
+        ))
     return transcription.text
 
 
@@ -97,7 +97,7 @@ graph_builder.add_edge(START, "chatbot")
 app_graph = graph_builder.compile()
 
 
-def get_response_llm(messages: list[tuple[Any, Any]], config: Dict[str, Any]) -> str:
+async def get_response_llm(messages: list[tuple[Any, Any]], config: Dict[str, Any]) -> str:
     """
     Gets the response from the LLM via the compiled graph.
 
@@ -109,8 +109,9 @@ def get_response_llm(messages: list[tuple[Any, Any]], config: Dict[str, Any]) ->
         str: The final response from the LLM.
     """
     runnable_config = cast(RunnableConfig, config)
-    events = app_graph.stream(
-        {"messages": messages}, runnable_config, stream_mode="values"
+
+    events = await asyncio.to_thread(
+    lambda: list(app_graph.stream({"messages": messages}, runnable_config, stream_mode="values"))
     )
 
     response = ""
