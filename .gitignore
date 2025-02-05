@@ -1,5 +1,3 @@
-src/.venv
-src/.env
 src/trials
 src/ouput.wav
 src/__pycache__
@@ -15,3 +13,4 @@ test_conversations.db
 .coverage
 manifests/secret.yaml
 .env
+.pytest_cache

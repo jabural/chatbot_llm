@@ -25,7 +25,7 @@ async def get_transcription_audio_file(filename: str = "output.wav") -> str:
         str: The transcribed text.
     """
     with open(filename, "rb") as audio_file:
-        transcription = await asyncio.to_thread(client.audio.transcriptions.create(
+        transcription = await asyncio.to_thread(lambda: client.audio.transcriptions.create(
             model="whisper-1",
             file=audio_file,
             language="en"
