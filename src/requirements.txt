@@ -25,4 +25,4 @@ pyjwt
 sqlalchemy
 python-jose
 passlib
-
+pytest-asyncio

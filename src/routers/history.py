@@ -6,6 +6,8 @@ from typing import Annotated
 from ..database import SessionLocal
 from ..models import Thread
 from datetime import datetime
+from .auth import get_current_user
+
 
 router = APIRouter(
     prefix='/history',
@@ -22,6 +24,7 @@ def get_db():
 
 
 db_dependency = Annotated[Session, Depends(get_db)]
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 class MessageResponse(BaseModel):
@@ -38,11 +41,15 @@ class ThreadResponse(BaseModel):
 @router.get("/", status_code=status.HTTP_200_OK, response_model=ThreadResponse)
 async def get_thread_messages(
     db: db_dependency,
+    user: user_dependency,
     thread_id: str = Query(..., description="Thread ID to retrieve messages for")
 ) -> ThreadResponse:
     """
     Retrieves all messages from a specific thread based on thread_id.
     """
+    if user is None or user.get('user_role') != 'admin':
+        raise HTTPException(status_code=401, detail='Authentication Failed')
+
     thread = db.query(Thread).filter_by(id=thread_id).first()
 
     if not thread:

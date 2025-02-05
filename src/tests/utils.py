@@ -4,7 +4,8 @@ from ..database import Base
 from ..main import app
 from fastapi.testclient import TestClient
 import pytest
-from ..models import Thread, Message
+from ..models import Thread, Message, Users
+from ..routers.auth import bcrypt_context
 
 
 DATABASE_URL = "sqlite:///./test_conversations.db"
@@ -34,6 +35,9 @@ def override_get_db():
         yield db
     finally:
         db.close()
+
+def override_get_current_user():
+    return {'username': 'Javier', 'id': 1, 'user_role': 'admin'}
 
 
 client = TestClient(app)
@@ -70,4 +74,22 @@ def test_sql():
     with engine.connect() as connection:
         connection.execute(text("DELETE FROM threads;"))
         connection.execute(text("DELETE FROM messages;"))
+        connection.commit()
+
+@pytest.fixture
+def test_user():
+    user = Users(
+        username="jabural",
+        email="jabural@email.com",
+        first_name="Javier",
+        last_name="Clarkson",
+        hashed_password=bcrypt_context.hash("testpassword"),
+        role="admin"
+    )
+    db = TestingSessionLocal()
+    db.add(user)
+    db.commit()
+    yield user
+    with engine.connect() as connection:
+        connection.execute(text("DELETE FROM users;"))
         connection.commit()
