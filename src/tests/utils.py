@@ -36,6 +36,7 @@ def override_get_db():
     finally:
         db.close()
 
+
 def override_get_current_user():
     return {'username': 'Javier', 'id': 1, 'user_role': 'admin'}
 
@@ -75,6 +76,7 @@ def test_sql():
         connection.execute(text("DELETE FROM threads;"))
         connection.execute(text("DELETE FROM messages;"))
         connection.commit()
+
 
 @pytest.fixture
 def test_user():

@@ -1,4 +1,5 @@
-from .utils import *
+from .utils import TestingSessionLocal, override_get_db, test_user  # noqa: F401
+from ..main import app
 from ..routers.auth import get_db, authenticate_user, create_access_token, SECRET_KEY, ALGORITHM, get_current_user
 from jose import jwt
 from datetime import timedelta
@@ -7,7 +8,8 @@ from fastapi import HTTPException
 
 app.dependency_overrides[get_db] = override_get_db
 
-def test_authenticate_user(test_user):
+
+def test_authenticate_user(test_user):  # noqa: F811
     db = TestingSessionLocal()
 
     authenticated_user = authenticate_user(test_user.username, 'testpassword', db)

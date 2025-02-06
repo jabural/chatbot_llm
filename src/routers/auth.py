@@ -1,12 +1,9 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel, Field
-from typing import Dict
 from sqlalchemy.orm import Session
 from typing import Annotated
 from ..database import SessionLocal
-from ..models import Thread, Users
-from ..core.llm import get_response_llm, add_message_sql
-# import jwt
+from ..models import Users
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from datetime import timedelta, datetime, timezone
@@ -23,6 +20,7 @@ ALGORITHM = 'HS256'
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='/auth/token')
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -38,6 +36,7 @@ class Prompt(BaseModel):
     prompt: str = Field(..., min_length=1, title="Prompt", description="The prompt to send")
     thread: str = Field("abc123", title="Thread", description="The thread of the user")
 
+
 class CreateUserRequest(BaseModel):
     username: str
     email: str
@@ -45,6 +44,7 @@ class CreateUserRequest(BaseModel):
     last_name: str
     password: str
     role: str
+
 
 class Token(BaseModel):
     access_token: str

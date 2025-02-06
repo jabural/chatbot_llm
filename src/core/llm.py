@@ -111,8 +111,8 @@ async def get_response_llm(messages: list[tuple[Any, Any]], config: Dict[str, An
     runnable_config = cast(RunnableConfig, config)
 
     events = await asyncio.to_thread(
-    lambda: list(app_graph.stream({"messages": messages}, runnable_config, stream_mode="values"))
-    )
+        lambda: list(app_graph.stream({"messages": messages}, runnable_config, stream_mode="values"))
+        )
 
     response = ""
     for event in events:

@@ -16,6 +16,7 @@ class Users(Base):
     is_active = Column(Boolean, default=True)
     role = Column(String)
 
+
 class Thread(Base):
     __tablename__ = "threads"
 

@@ -5,10 +5,10 @@ import numpy as np
 from unittest.mock import patch
 from .utils import override_get_db, client, test_sql  # noqa: F401
 from ..routers.ws import get_db
-import pytest
 
 
 app.dependency_overrides[get_db] = override_get_db
+
 
 @patch("src.core.llm.get_transcription_audio_file")
 @patch("src.routers.chatbot.get_response_llm")
