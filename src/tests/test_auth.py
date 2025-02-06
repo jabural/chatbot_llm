@@ -1,7 +1,7 @@
 from .utils import TestingSessionLocal, override_get_db, test_user  # noqa: F401
 from ..main import app
 from ..routers.auth import get_db, authenticate_user, create_access_token, SECRET_KEY, ALGORITHM, get_current_user
-from jose import jwt
+from jose import jwt  # type: ignore
 from datetime import timedelta
 import pytest
 from fastapi import HTTPException

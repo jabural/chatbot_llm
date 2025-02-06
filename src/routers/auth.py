@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 from ..database import SessionLocal
 from ..models import Users
-from passlib.context import CryptContext
+from passlib.context import CryptContext  # type: ignore
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from datetime import timedelta, datetime, timezone
-from jose import jwt, JWTError
+from jose import jwt, JWTError  # type: ignore
 
 router = APIRouter(
     prefix='/auth',
