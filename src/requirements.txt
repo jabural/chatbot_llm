@@ -21,3 +21,8 @@ flake8
 pytest-cov
 mypy
 gradio
+pyjwt
+sqlalchemy
+python-jose
+passlib
+pytest-asyncio

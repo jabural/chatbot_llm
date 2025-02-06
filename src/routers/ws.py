@@ -51,7 +51,7 @@ async def websocket_endpoint(websocket: WebSocket, db: db_dependency) -> None:
                     decoded_array = decoded_array.reshape(-1, channels)
 
                 save_audio_to_wav(decoded_array, samplerate)
-                user_input = get_transcription_audio_file()
+                user_input = await get_transcription_audio_file()
                 os.remove("output.wav")
                 add_message_sql(db, thread, user_input, "user")
 
@@ -62,7 +62,7 @@ async def websocket_endpoint(websocket: WebSocket, db: db_dependency) -> None:
                 if db_thread:
                     for msg in db_thread.messages:
                         messages.append((msg.role, msg.content))
-                    response = get_response_llm(messages, config)
+                    response = await get_response_llm(messages, config)
                     add_message_sql(db, thread, response, "assistant")
 
                 if not response:

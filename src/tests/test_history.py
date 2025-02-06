@@ -1,9 +1,10 @@
 from fastapi import status
 from ..main import app
-from ..routers.history import get_db
-from .utils import override_get_db, client, test_sql  # noqa: F401
+from ..routers.history import get_db, get_current_user
+from .utils import override_get_db, override_get_current_user, client, test_sql  # noqa: F401
 
 app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_user] = override_get_current_user
 
 
 def test_get_by_thread(test_sql):  # noqa: F811

@@ -43,7 +43,7 @@ async def handle_prompt(data: Prompt, db: db_dependency) -> Dict[str, str]:
         if db_thread:
             for msg in db_thread.messages:
                 messages.append((msg.role, msg.content))
-            response = get_response_llm(messages, config)
+            response = await get_response_llm(messages, config)
             add_message_sql(db, thread, response, "assistant")
     except ValueError as ve:
         raise HTTPException(
